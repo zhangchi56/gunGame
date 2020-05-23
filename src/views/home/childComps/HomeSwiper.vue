@@ -32,6 +32,7 @@ export default {
     return {
       baseUrl:'http://m.wentuguoji.cn',
       swiperOptions: {
+        autoplay:true,
         pagination: {
           el: ".swiper-pagination"
         }
@@ -62,7 +63,7 @@ export default {
 
 <style scoped>
 #mySwiper>>>.mySwiper{
-  height: 195px;
+  height: 4rem;
   width: 100%;
 }
 #mySwiper>>>.mySwiper img{

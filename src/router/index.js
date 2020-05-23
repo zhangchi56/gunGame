@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-const Home = () => import('views/home/Home')
+const Index = () => import('views/home/Index')
 const Category = () => import('views/category/Category')
 const Cart = () => import('views/cart/Cart')
 const Profile = () => import('views/profile/Profile')
@@ -12,6 +12,7 @@ const Test1 = () => import('views/test1')
 const Test2 = () => import('views/test2')
 const Test3 = () => import('views/test3')
 const Test4 = () => import('views/test4')
+const Test5 = () => import('views/test5')
 
 // 1.安装VueRouter
 Vue.use(VueRouter)
@@ -20,11 +21,11 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    redirect: '/home'
+    redirect: '/index'
   },
   {
-    path: '/home',
-    component: Home
+    path: '/index',
+    component: Index
   },
   {
     path: '/category',
@@ -65,7 +66,11 @@ const routes = [
   {
     path: '/test4',
     component: Test4
-  }
+  },
+  {
+    path: '/test5',
+    component: Test5
+  },
 ]
 
 // 3.创建路由对象

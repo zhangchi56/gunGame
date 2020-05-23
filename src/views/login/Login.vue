@@ -50,13 +50,13 @@
                   <el-input v-model="formMess.phone" size="medium" type="text" placeholder="请输入手机号"></el-input>
                 </el-form-item>
                 <el-form-item prop="pass">
-                  <el-input v-model="formMess.pass" size="medium" type="text" placeholder="请输入密码"></el-input>
+                  <el-input v-model="formMess.pass" size="medium" type="password" placeholder="请输入密码"></el-input>
                 </el-form-item>
                 <el-form-item prop="checkPass">
                   <el-input
                     v-model="formMess.checkPass"
                     size="medium"
-                    type="text"
+                    type="password"
                     placeholder="请再次输入密码"
                   ></el-input>
                 </el-form-item>
@@ -104,7 +104,7 @@ export default {
           { required: true, message: "请输入用户名", trigger: "blur" }
         ],
         password: [{ required: true, message: "请输入密码", trigger: "blur" }],
-        phone: [{ required: true, message: "请输入邮箱", trigger: "blur" }],
+        phone: [{ required: true, message: "请输入手机号", trigger: "blur" }],
         code: [{ required: true, message: "请输入验证码", trigger: "blur" }],
         pass: [{ required: true, message: "请输入密码", trigger: "blur" }],
         checkPass: [
@@ -144,16 +144,19 @@ export default {
           console.log(res);
           if (res.status == 200) {
             this.$toast.success("登陆成功");
+            //将token存储到本地
+          // window.localStorage.setItem =
+          //   ("token", JSON.stringify(res.data.message));
+          this.$router.push({ path: "/index" });
+          this.loading = false;
+          
+
+          window.sessionStorage.setItem('token', JSON.stringify(res.data.message))
+          window.sessionStorage.setItem('user', JSON.stringify(this.form.username))
           } else if (res.data.code == -1) {
             this.$toast.fail(res.data.message);
           }
-          //将token存储到本地
-          // window.localStorage.setItem =
-          //   ("token", JSON.stringify(res.data.message));
-          this.$router.push({ path: "/home" });
-          this.loading = false;
-
-          window.sessionStorage.setItem('token', JSON.stringify(res.data.message))
+          
         });
         // this.axios.post('/admin/login',this.form).then(res=>{
         // 	// 存储到vuex
@@ -185,7 +188,6 @@ export default {
     submitRegister() {
       this.$refs.ruleForm2.validate(e => {
         if (!e) return;
-        console.log(123);
         if (this.formMess.pass != this.formMess.checkPass) {
           this.$toast.fail("两次密码不一致");
           // console.log("两次密码不一致")

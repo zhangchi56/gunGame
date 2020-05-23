@@ -18,10 +18,10 @@ axios.interceptors.request.use((config)=>{
   // 添加header头的token
   // let token = "fabef0b85ed66b48ef5ba9a53134d4b776d353b753807a9fa3d28f1e608ed5eb"
   // config.headers['SESSION-TOKEN'] = token
-  let token = window.sessionStorage.getItem('token')
-  if(token){
-    config.headers['SESSION-TOKEN'] = token
-  }
+  // let token = window.sessionStorage.getItem('token')
+  // if(token){
+    // config.headers['SESSION-TOKEN'] = token
+  // }
 	// if(config.token === true){
 	// 	config.headers['token'] = token
   // }

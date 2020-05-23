@@ -1,7 +1,7 @@
 <template>
   <div id="deposit">
     <nav-bar class="nav-bar">
-      <div slot="left" @click="linkToProfile">《充值</div>
+      <div slot="left" @click="linkToProfile">返回</div>
       <div slot="center">充值页面</div>
     </nav-bar>
     <div class="deposit-container">

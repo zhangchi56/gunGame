@@ -25,18 +25,18 @@
 
 </body>
 <script>
-  var websocket = null
-  var localHref = window.location.host === 'localhost:9528' ? '线上服务器地址' : window.location.host
-  localStorage.setItem('isOk', '0')
-  localStorage.setItem('tipsData', '')
-  if ('WebSocket' in window) {
-    // websocket = new WebSocket('ws://线上服务器地址/webSocket')
-    // websocket = new WebSocket('ws://线上服务器地址/webSocket')
-    websocket = new WebSocket('ws://echo.websocket.org')
-    // websocket = new WebSocket('ws://' + localHref + '/webSocket')
-  } else {
-    alert('该浏览器不支持websocket!')
-  }
+  // var websocket = null
+  // var localHref = window.location.host === 'localhost:9528' ? '线上服务器地址' : window.location.host
+  // localStorage.setItem('isOk', '0')
+  // localStorage.setItem('tipsData', '')
+  // if ('WebSocket' in window) {
+  //   // websocket = new WebSocket('ws://线上服务器地址/webSocket')
+  //   // websocket = new WebSocket('ws://线上服务器地址/webSocket')
+  //   // websocket = new WebSocket('ws://192.168.11.105:3000/im')
+  //   // websocket = new WebSocket('ws://' + localHref + '/webSocket')
+  // } else {
+  //   alert('该浏览器不支持websocket!')
+  // }
   // websocket.onopen = function (event) {
   //   console.log('建立连接')
   // }
