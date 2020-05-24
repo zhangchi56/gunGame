@@ -15,20 +15,13 @@
 
     <section id="detail-container">
       <div class="top">
-        <div>
-          <div style="width:80px;height:80px;background:#808080"><img :src="seat_top[0]?seat_top[0].img:defaultImg" alt /></div>
-          <div class="userInfo">{{seat_top[0].name}}</div>
-          <div class="userInfo"><span v-show="seat_top[0].status">已准备</span></div>
-        </div>
-        <div>
-          <div style="width:80px;height:80px;background:#808080"><img :src="seat_top[1]?seat_top[1].img:defaultImg" alt /></div>
-          <div class="userInfo">{{seat_top[1].name}}</div>
-          <div v-show="seat_top[1].status" class="userInfo">已准备</div>
-        </div>
-        <div>
-          <div style="width:80px;height:80px;background:#808080"><img :src="seat_top[2]?seat_top[2].img:defaultImg" alt /></div>
-          <div class="userInfo">{{seat_top[2]?seat_top.name:''}}</div>
-          <div v-show="seat_top[2]?seat_top.status:''" class="userInfo">已准备</div>
+        <div v-for="(item, index) in seat_top" :key="index">
+          <div class="roomImg">
+            <img v-if="item.name" src="~assets/img/detail/1.png" alt />
+            <!-- <img src="~assets/img/detail/1.png" alt /> -->
+          </div>
+          <div class="userInfo">{{item.name}}</div>
+          <div class="userInfo">{{item.name?'已准备':''}}</div>
         </div>
       </div>
       <div class="center">
@@ -44,14 +37,13 @@
         <button @click="start" class="start" v-show="isReady">开始</button>
       </div>
       <div class="bottom">
-        <div>
-          <img :src="seat_bottom[0]?seat_bottom[0].img:defaultImg" alt />
-        </div>
-        <div>
-          <img :src="seat_bottom[1]?seat_bottom[1].img:defaultImg" alt />
-        </div>
-        <div>
-          <img :src="seat_bottom[2]?seat_bottom[2].img:defaultImg" alt />
+        <div v-for="(item, index) in seat_bottom" :key="index">
+          <div class="roomImg">
+            <img v-if="item.name" src="~assets/img/detail/1.png" alt />
+            <!-- <img src="~assets/img/detail/1.png" alt /> -->
+          </div>
+          <div class="userInfo">{{item.name}}</div>
+          <div class="userInfo">{{item.name?'已准备':''}}</div>
         </div>
       </div>
     </section>
@@ -69,41 +61,25 @@ export default {
   data() {
     return {
       isReady: false,
-      // wss: "",
       iid: "",
       score: 10,
       timer: null,
-      seat_top: [
-        { name:'aaa',img: "/img/1.97e94f49.png",status:true},
-        { name:'bbb',img: "/img/1.97e94f49.png",status:false},
-        // { name:'ccc',img: "/img/1.97e94f49.png",status:false},
-        // { img: "/img/1.97e94f49.png" }
-      ],
-      seat_bottom: [
-        // { img: "/img/1.97e94f49.png" }
-        ],
-      defaultImg: "/img/房间.768b2835.png",
+      seat_top: [],
+      seat_bottom: [],
       isShowGif: false,
       userQuery: this.$route.query,
-      wsMessage: {
-        // online: 2
-      }
+      wsMessage: {}
     };
   },
   created() {
-    
     // 消息通知弹幕
-    console.log(this.userQuery);
+    // console.log(this.userQuery);
     this.timer = setInterval(this.move, 10);
     // console.log(document.body.clientWidth);
   },
   mounted() {
     // 创建ws连接
     this.initWebSocket();
-    // console.log(this.wsMessage);
-    // setTimeout(() => {
-      // this.send();
-    // }, 1000);
   },
   updated() {},
   destroyed() {
@@ -130,7 +106,6 @@ export default {
       };
       _this.ws.send(JSON.stringify(params)); //调用WebSocket send()发送信息的方法
     },
-
     // 进入页面创建websocket连接
     initWebSocket() {
       let _this = this;
@@ -138,7 +113,6 @@ export default {
       if (window.WebSocket) {
         let url = "ws://120.25.234.158:3000//im";
         let ws = new WebSocket(url);
-
         _this.ws = ws;
         this.wss = ws;
         ws.onopen = function(e) {
@@ -156,8 +130,13 @@ export default {
           //接收服务器返回的数据
           console.log(e);
           _this.wsMessage = JSON.parse(e.data);
-          console.log(_this.wsMessage)
-          _this.send()
+          console.log(_this.wsMessage);
+          // console.log(_this.wsMessage.extra);
+          let arr = _this.wsMessage.extra.split(",");
+          _this.splitArr(arr);
+          console.log(_this.seat_top);
+          console.log(_this.seat_bottom);
+          _this.send();
         };
       }
     },
@@ -202,9 +181,10 @@ export default {
     $(str) {
       return document.getElementById(str);
     },
+    //发送弹幕
     send() {
       if (this.$("box").hasChildNodes()) {
-        console.log(this.$("box").hasChildNodes());
+        // console.log(this.$("box").hasChildNodes());
         var f = document.getElementById("box");
         var childs = f.childNodes;
         for (var i = 0; i < childs.length; i++) {
@@ -212,7 +192,6 @@ export default {
           f.removeChild(childs[i]);
         }
       }
-
       // console.log(this.wsMessage.content);
       var word = this.wsMessage.content;
       var span = document.createElement("span");
@@ -235,19 +214,28 @@ export default {
       }
     },
     // 分割数组
-    // fun2(arr) {
-    //   let arr = {
+    splitArr(arr) {
+      console.log(arr);
+      let top = [];
+      let bottom = [];
 
-    //   }
-    //         var seat_top = [];
-    //         var seat_bottom = [];
-    //         for (var i = 0; i < arr.length / 2; i++) {
-    //             seat_top[i] = arr[i];
-    //             seat_bottom[i] = arr[i + arr.length / 2];
-    //         }
-    //         console.log(seat_top); //[1,2,3]
-    //         console.log(seat_bottom); //[4,5,6]
-    //     }
+        for (let i = 0; i < 3; i++) {
+          let obj = {
+            name: arr[i]
+          };
+          top.push(obj);
+        }
+        this.seat_top = top;
+ 
+      for (let i = 3; i < 6; i++) {
+        let obj = {
+          name: arr[i]
+        };
+        bottom.push(obj);
+        console.log(arr[3]);
+      }
+      this.seat_bottom = bottom;
+    }
   }
 };
 </script>
@@ -284,27 +272,36 @@ export default {
   display: flex;
   margin: 0.267rem;
   flex-direction: column;
-  background-color: pink;
+  /* background-color: pink; */
 }
-#detail-container .top {
+#detail-container .top,
+#detail-container .bottom {
   display: flex;
   justify-content: space-between;
-  /* background-color: plum; */
 }
-#detail-container .top .userInfo{
+#detail-container .top .roomImg,
+#detail-container .bottom .roomImg {
+  width: 80px;
+  height: 80px;
+  background: #808080;
+  background: url("~assets/img/detail/房间.png") no-repeat;
+  background-size:100% 100%;
+}
+#detail-container .top .userInfo,
+#detail-container .bottom .userInfo {
   text-align: center;
   font-size: 0.3rem;
   height: 0.5rem;
   line-height: 0.5rem;
   background-color: #fff;
 }
-#detail-container .top div {
+#detail-container .top div,
+#detail-container .bottom div {
   width: 80px;
-  /* height: 80px; */
-  /* background: gray; */
 }
-#detail-container .top div img {
-  height: 80px;
+#detail-container .top div img,
+#detail-container .bottom div img {
+  height: 100%;
   width: 100%;
 }
 #detail-container .center {
@@ -318,24 +315,9 @@ export default {
   height: 100%;
   width: 100%;
 }
-#detail-container .bottom {
-  display: flex;
-  justify-content: space-between;
-  /* background-color: plum; */
-}
-#detail-container .bottom div {
-  width: 80px;
-  height: 80px;
-  background: gray;
-}
-#detail-container .bottom div img {
-  height: 80px;
-  width: 100%;
-}
 #detail-container .status {
   margin: 10px 0;
 }
-
 #detail-container .status button {
   font-size: 0.42rem;
   padding: 2px 10px;
