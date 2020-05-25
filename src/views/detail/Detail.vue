@@ -99,7 +99,7 @@ export default {
       let _this = this;
       let params = {
         cmd: "LOGIN",
-        userid: sessionStorage.getItem('userId'),
+        userId: sessionStorage.getItem('userId'),
         content: JSON.parse(this.userQuery.name) + "加入游戏",
         time: 1590113988545,
         room: this.userQuery.room

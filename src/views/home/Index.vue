@@ -11,7 +11,8 @@
       <div class="roomItem" v-for="(item, index) in room" :key="index">
         <!-- {{item.image_src}} -->
         <div @click="joinRoom(item)">
-          <img :src="item.image_src" alt />
+          <img v-if="!item.image_src" src="~@/assets/img/home/枪.png" alt="">
+          <img v-else :src="item.image_src" alt />
           <div class="des">{{index+1}}号房间5/6</div>
         </div>
       </div>
@@ -19,10 +20,10 @@
     <!-- </div>
     </scroll>-->
     <!-- <back-top @backTop="backTop" class="back-top" v-show="showBackTop"> -->
-      <!-- <img src="~assets/img/common/top.png" alt /> -->
+    <!-- <img src="~assets/img/common/top.png" alt /> -->
     <!-- </back-top> -->
     <!-- 点击加载更多 -->
-    <div class="loadMore">加载更多</div>
+    <div class="loadMore" @click="loadMore">加载更多</div>
   </div>
 </template>
 
@@ -55,7 +56,8 @@ export default {
       banners: [],
       room: [],
       recommends: [],
-      page:0
+      page: 0,
+      init: 1
       // showBackTop: false
     };
   },
@@ -70,7 +72,6 @@ export default {
   },
   mounted() {
     //监听滚动事件
-
     // window.addEventListener("srocll", this.handleScroll);
   },
   methods: {
@@ -83,16 +84,25 @@ export default {
     //获取房间
     getRoom() {
       this.$http
-        .get(`http://120.25.234.158:9001/websocket/getRoomList?page=${this.page}`)
+        .get(
+          `http://120.25.234.158:9001/websocket/getRoomList?page=${this.page}`
+        )
         .then(res => {
           console.log(res);
-          this.room = res.data;
+          console.log(this.init);
+          if (res.data.length <= 0) {
+            this.$toast.fail("暂无数据");
+          } else if(this.init > 1){
+            this.$toast.success("加载成功");
+          }
+          this.room = this.room.concat(res.data);
+          this.init++;
         });
     },
     //加入房间
     joinRoom(item) {
       console.log(window.sessionStorage.getItem("token"));
-      console.log(item)
+      console.log(item);
       if (!window.sessionStorage.getItem("token")) {
         this.$toast.fail("请先登陆");
         this.$router.push({ path: "/login" });
@@ -119,6 +129,11 @@ export default {
         // })
       });
     },
+    //加载更多
+    loadMore() {
+      this.page++;
+      this.getRoom();
+    }
 
     //监听是否滑动到页面底部
     // handleScroll() {
@@ -206,13 +221,13 @@ export default {
   color: white;
   background-color: rgba(0, 0, 0, 0.3);
 }
-.loadMore{
-  position: absolute;
+.loadMore {
+  position: fixed;
   bottom: 0.1rem;
   left: 50%;
   transform: translateX(-50%);
   font-size: 0.3rem;
-  background-color: #FA800a;
+  background-color: #fa800a;
   padding: 0.15rem 0.4rem;
   color: #fff;
 }
