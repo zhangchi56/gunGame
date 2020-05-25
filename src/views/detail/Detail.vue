@@ -1,9 +1,9 @@
 <template>
   <div id="detail">
     <nav-bar class="nav-bar">
-      <div slot="left" @click="linkBack">返回</div>
+      <div slot="left" @click="linkBack"><img style="width:0.5rem;heigth:0.5rem" src="~@/assets/img/profile/返回.png" alt /></div>
       <div slot="center">房间一（人数{{wsMessage.online}}/6）</div>
-      <div slot="right" @click="linkToProfile">我的</div>
+      <div slot="right" @click="linkToProfile"><img style="width:0.5rem;heigth:0.5rem" src="~@/assets/img/profile/我的.png" alt /></div>
     </nav-bar>
 
     <section class="message-container">
@@ -73,7 +73,7 @@ export default {
   },
   created() {
     // 消息通知弹幕
-    // console.log(this.userQuery);
+    console.log(this.userQuery);
     this.timer = setInterval(this.move, 10);
     // console.log(document.body.clientWidth);
   },
@@ -99,11 +99,12 @@ export default {
       let _this = this;
       let params = {
         cmd: "LOGIN",
-        nickName: JSON.parse(this.userQuery.name),
+        userid: sessionStorage.getItem('userId'),
         content: JSON.parse(this.userQuery.name) + "加入游戏",
         time: 1590113988545,
         room: this.userQuery.room
       };
+      console.log(params)
       _this.ws.send(JSON.stringify(params)); //调用WebSocket send()发送信息的方法
     },
     // 进入页面创建websocket连接
@@ -114,7 +115,6 @@ export default {
         let url = "ws://120.25.234.158:3000//im";
         let ws = new WebSocket(url);
         _this.ws = ws;
-        this.wss = ws;
         ws.onopen = function(e) {
           console.log("服务器连接成功: " + url);
           // 向服务器发送某某人加入的消息
@@ -122,6 +122,7 @@ export default {
         };
         ws.onclose = function(e) {
           console.log("服务器连接关闭: " + url);
+          //更新房间人数
         };
         ws.onerror = function() {
           console.log("服务器连接出错: " + url);
@@ -196,7 +197,9 @@ export default {
       var word = this.wsMessage.content;
       var span = document.createElement("span");
       span.style.position = "absolute";
-      span.style.left = document.body.clientWidth + "px";
+      // let htmlFontSize = document.getElementsByTagName('html')[0].style.fontSize
+      // let htmlFontSizeNum = htmlFontSize.substring(0,htmlFontSize.length-2)
+      span.style.left = document.body.clientWidth+ "px";
       // span.style["font-size"] = '12rem'
       span.speed = 1;
       span.innerHTML = word;
@@ -219,20 +222,19 @@ export default {
       let top = [];
       let bottom = [];
 
-        for (let i = 0; i < 3; i++) {
-          let obj = {
-            name: arr[i]
-          };
-          top.push(obj);
-        }
-        this.seat_top = top;
- 
+      for (let i = 0; i < 3; i++) {
+        let obj = {
+          name: arr[i]
+        };
+        top.push(obj);
+      }
+      this.seat_top = top;
+
       for (let i = 3; i < 6; i++) {
         let obj = {
           name: arr[i]
         };
         bottom.push(obj);
-        console.log(arr[3]);
       }
       this.seat_bottom = bottom;
     }
@@ -246,8 +248,9 @@ export default {
   position: relative;
   width: 100%;
   height: 1rem;
-  background: pink;
   overflow: hidden;
+  background:#e72426;
+  color: #fff;
 }
 .box span {
   height: 1rem;
@@ -281,11 +284,10 @@ export default {
 }
 #detail-container .top .roomImg,
 #detail-container .bottom .roomImg {
-  width: 80px;
-  height: 80px;
-  background: #808080;
+  width: 2.134rem;
+  height: 2.134rem;
   background: url("~assets/img/detail/房间.png") no-repeat;
-  background-size:100% 100%;
+  background-size: 100% 100%;
 }
 #detail-container .top .userInfo,
 #detail-container .bottom .userInfo {
@@ -294,10 +296,15 @@ export default {
   height: 0.5rem;
   line-height: 0.5rem;
   background-color: #fff;
+  overflow: hidden;/*超出部分隐藏*/
+    text-overflow:ellipsis;/* 超出部分显示省略号 */
+    white-space: nowrap;/*规定段落中的文本不进行换行 */
 }
 #detail-container .top div,
 #detail-container .bottom div {
-  width: 80px;
+  /* background-color: pink; */
+  width: 2.134rem;
+  height: 2.134rem;
 }
 #detail-container .top div img,
 #detail-container .bottom div img {
@@ -305,10 +312,10 @@ export default {
   width: 100%;
 }
 #detail-container .center {
-  margin-top: 40px;
+  margin-top: 1.067rem;
   display: flex;
   width: 100%;
-  height: 200px;
+  height: 5.334rem;
   /* background-color: red; */
 }
 #detail-container .center img {
@@ -316,11 +323,11 @@ export default {
   width: 100%;
 }
 #detail-container .status {
-  margin: 10px 0;
+  margin: 0.267rem 0;
 }
 #detail-container .status button {
   font-size: 0.42rem;
-  padding: 2px 10px;
+  padding: 0.053rem 0.267rem;
   background-color: #fa800a;
   border: none;
   color: #fff;

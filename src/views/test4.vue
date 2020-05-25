@@ -12,6 +12,7 @@ export default {
   },
   methods: {
     getData() {
+      
       //   const options = {
       //     method: "POST",
       //     headers: { "content-type": "application/x-www-form-urlencoded" },
@@ -22,12 +23,12 @@ export default {
       //       console.log(res)
       //   })
 
-      const params = new URLSearchParams();
-      params.append("phone", "15573940178");
-      params.append("password", "666666");
+      // const params = new URLSearchParams();
+      // params.append("phone", "15573940178");
+      // params.append("password", "666666");
 
       this.$http
-        .post("http://120.25.234.158:9001/mobile/login", params)
+        .get("http://120.25.234.158:9001/member/fetchMobileMember")
         .then(res => {
           console.log(res);
         });

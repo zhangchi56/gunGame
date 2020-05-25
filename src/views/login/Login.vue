@@ -50,7 +50,12 @@
                   <el-input v-model="formMess.phone" size="medium" type="text" placeholder="请输入手机号"></el-input>
                 </el-form-item>
                 <el-form-item prop="pass">
-                  <el-input v-model="formMess.pass" size="medium" type="password" placeholder="请输入密码"></el-input>
+                  <el-input
+                    v-model="formMess.pass"
+                    size="medium"
+                    type="password"
+                    placeholder="请输入密码"
+                  ></el-input>
                 </el-form-item>
                 <el-form-item prop="checkPass">
                   <el-input
@@ -110,8 +115,6 @@ export default {
         checkPass: [
           { required: true, message: "请再次输入密码", trigger: "blur" }
         ]
-        // pass: [{ validator: validatePass, trigger: "blur" }],
-        // checkPass: [{ validator: validatePass2, trigger: "blur" }]
       },
       disabled: false,
       time: 0,
@@ -124,9 +127,6 @@ export default {
       }
     };
   },
-  updated() {
-    // console.log(this.formMess)
-  },
   methods: {
     //登陆
     submit() {
@@ -134,44 +134,33 @@ export default {
         if (!e) return;
         // 提交表单
         this.loading = true;
-
         //将json格式转换
         const loginParams = new URLSearchParams();
         loginParams.append("phone", this.form.username);
         loginParams.append("password", this.form.password);
-
-        this.$http.post("/mobile/login", loginParams).then(res => {
-          console.log(res);
-          if (res.status == 200) {
-            this.$toast.success("登陆成功");
-            //将token存储到本地
-          // window.localStorage.setItem =
-          //   ("token", JSON.stringify(res.data.message));
-          this.$router.push({ path: "/index" });
-          this.loading = false;
-          
-
-          window.sessionStorage.setItem('token', JSON.stringify(res.data.message))
-          window.sessionStorage.setItem('user', JSON.stringify(this.form.username))
-          } else if (res.data.code == -1) {
-            this.$toast.fail(res.data.message);
-          }
-          
-        });
-        // this.axios.post('/admin/login',this.form).then(res=>{
-        // 	// 存储到vuex
-        // 	let data = res.data.data
-        // 	// 存储到本地存储
-        // 	this.$store.commit('user',data)
-
-        // 	// 成功提示
-        // 	this.$message('登录成功')
-        // 	this.loading = false
-        // 	// 跳转后台首页
-        // 	this.$router.push({path:'/home'})
-        // }).catch(err=>{
-        // 	this.loading = false
-        // })
+        this.$http
+          .post("/mobile/login", loginParams)
+          .then(res => {
+            console.log(res);
+            if (res.status == 200) {
+              this.$toast.success("登陆成功");
+              this.$router.push({ path: "/index" });
+              this.loading = false;
+              //储存user和token
+              this.$store.commit("login", {
+                user: this.form.username,
+                token: res.data.data.mtoken,
+                userId:res.data.data.userid
+              });
+              console.log(res.data.data.mtoken)
+              console.log(res.data.data.userid)
+            } else if (res.data.code == -1) {
+              this.$toast.fail(res.data.message);
+            }
+          })
+          .catch(err => {
+            this.loading = false;
+          });
       });
     },
     //登陆注册页面切换
@@ -190,16 +179,8 @@ export default {
         if (!e) return;
         if (this.formMess.pass != this.formMess.checkPass) {
           this.$toast.fail("两次密码不一致");
-          // console.log("两次密码不一致")
           return;
         }
-        // console.log({
-        //   phone: this.formMess.phone,
-        //   code: this.formMess.code,
-        //   password: this.formMess.password,
-        //   confirmPassword: this.formMess.confirmPassword
-        // });
-
         //将json格式转换
         const loginParams = new URLSearchParams();
         loginParams.append("phone", this.formMess.phone);
@@ -214,55 +195,41 @@ export default {
             this.$toast.fail(res.data.message);
           }
         });
-        // 提交表单
-        // this.loading = true;
-        // this.$router.push({ path: "/home" });
-        // this.$toast.success("注册成功！");
       });
     },
     //获取手机验证码
     sendcode() {
       // var reg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
       var reg = 11 && /^((13|14|15|17|18)[0-9]{1}\d{8})$/;
-      //var url="/nptOfficialWebsite/apply/sendSms?mobile="+this.ruleForm.phone;
       if (this.formMess.phone == "") {
         this.$toast.fail("请输入手机号");
       } else if (!reg.test(this.formMess.phone)) {
         this.$toast.fail("手机号格式不正确");
       } else {
-        this.time = 3;
+        this.time = 60;
         this.disabled = true;
-
         console.log(123);
         this.$http
           .get(`/mobile/verify_code?phone=${this.formMess.phone}`)
           .then(res => {
             console.log(res);
             if (res.data.code == 200) {
-              this.$toast.success(res.data.message);
               this.timer();
+              this.$toast.success(res.data.message);
             } else if (res.data.code == 0) {
               this.$toast.fail(res.data.message);
             }
           });
-        // axios.post(url).then(res => {
-        //   this.phonedata = res.data;
-        // });
       }
     },
-
     timer() {
       if (this.time > 0) {
         this.time--;
-
         this.btntxt = this.time + "s后重新获取";
-
         setTimeout(this.timer, 1000);
       } else {
         this.time = 0;
-
         this.btntxt = "获取验证码";
-
         this.disabled = false;
       }
     }
@@ -302,6 +269,9 @@ export default {
   color: #fff;
 }
 /* 样式穿透部分 */
+#login >>> .card-header {
+  border: none;
+}
 #login >>> .card {
   border: none;
 }

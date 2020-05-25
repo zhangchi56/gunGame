@@ -2,23 +2,27 @@
   <div id="home">
     <nav-bar class="nav-bar">
       <div slot="center">左轮手枪游戏</div>
-      <div slot="right" @click="linkToProfile">我的</div>
+      <div slot="right" @click="linkToProfile">
+        <img style="width:0.5rem;heigth:0.5rem" src="~@/assets/img/profile/我的.png" alt />
+      </div>
     </nav-bar>
     <home-swiper :banners="banners"></home-swiper>
     <div class="room">
       <div class="roomItem" v-for="(item, index) in room" :key="index">
         <!-- {{item.image_src}} -->
-        <div @click="joinRoom(1)">
+        <div @click="joinRoom(item)">
           <img :src="item.image_src" alt />
-          <div class="des">房间{{index+1}}</div>
+          <div class="des">{{index+1}}号房间5/6</div>
         </div>
       </div>
     </div>
     <!-- </div>
     </scroll>-->
-    <!-- <back-top @backTop="backTop" class="back-top" v-show="showBackTop">
-      <img src="~assets/img/common/top.png" alt />
-    </back-top> -->
+    <!-- <back-top @backTop="backTop" class="back-top" v-show="showBackTop"> -->
+      <!-- <img src="~assets/img/common/top.png" alt /> -->
+    <!-- </back-top> -->
+    <!-- 点击加载更多 -->
+    <div class="loadMore">加载更多</div>
   </div>
 </template>
 
@@ -51,11 +55,10 @@ export default {
       banners: [],
       room: [],
       recommends: [],
+      page:0
       // showBackTop: false
-      
     };
   },
-
   created() {
     // // 1.请求多个数据
     this.getMultiData();
@@ -64,10 +67,12 @@ export default {
     // 获取banner列表
     // this.getBanner()
     console.log("创建Home");
-    
-    
   },
+  mounted() {
+    //监听滚动事件
 
+    // window.addEventListener("srocll", this.handleScroll);
+  },
   methods: {
     //获取首页banner图
     // getBanner(){
@@ -78,39 +83,33 @@ export default {
     //获取房间
     getRoom() {
       this.$http
-        .get("https://api-hmugo-web.itheima.net/api/public/v1/home/swiperdata")
+        .get(`http://120.25.234.158:9001/websocket/getRoomList?page=${this.page}`)
         .then(res => {
-          // console.log(res);
-          this.room = res.data.message;
+          console.log(res);
+          this.room = res.data;
         });
     },
     //加入房间
-    joinRoom(){
-      console.log(window.sessionStorage.getItem('token'))
-      if(!window.sessionStorage.getItem('token')){
-        this.$toast.fail("请先登陆")
-        this.$router.push({path:'/login'})
-        return
+    joinRoom(item) {
+      console.log(window.sessionStorage.getItem("token"));
+      console.log(item)
+      if (!window.sessionStorage.getItem("token")) {
+        this.$toast.fail("请先登陆");
+        this.$router.push({ path: "/login" });
+        return;
       }
-      this.$router.push({path:'/detail',query:{
-        room:1,
-        name:window.sessionStorage.getItem('user')
-        }})
+      this.$router.push({
+        path: "/detail",
+        query: {
+          room: item,
+          name: window.sessionStorage.getItem("user")
+        }
+      });
     },
     linkToProfile() {
       this.$router.push({ path: "/profile" });
     },
-
-    // loadMore() {
-    //   this.getHomeProducts(this.currentType);
-    // },
-    // backTop() {
-    //   this.$refs.scroll.scrollTo(0, 0, 300);
-    // },
-    /**
-     * 网络请求相关方法
-     */
-    
+    //获取banner
     getMultiData() {
       getHomeMultidata().then(res => {
         this.banners = res.data.slideList;
@@ -119,14 +118,34 @@ export default {
         //   this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop
         // })
       });
-    }
+    },
+
+    //监听是否滑动到页面底部
+    // handleScroll() {
+    //   if (document.documentElement.scrollTop == document.body.offsetHeight) {
+    //     console.log(123);
+    //   }
+    // },
+    //监听是否滑动到页面底部
+    // handleScroll() {
+    //   var scrollTop =
+    //     document.documentElement.scrollTop || document.body.scrollTop;
+    //   var windowHeitht =
+    //     document.documentElement.clientHeight || document.body.clientHeight;
+    //   var scrollHeight =
+    //     document.documentElement.scrollHeight || document.body.scrollHeight;
+    //   //是否滚动到底部的判断
+    //   if (scrollTop + windowHeitht >= scrollHeight - 50) {
+    //     // this.getSpecialData();
+    //     console.log('滑到底部')
+    //   }
+    // }
   }
 };
 </script>
 
 <style scoped>
 #home {
-  /*position: relative;*/
   height: 100vh;
 }
 
@@ -169,11 +188,12 @@ export default {
   /* height: 2rem; */
   margin-bottom: 0.3rem;
   border: 1px black solid;
+  /* height: 82px; */
 }
 .roomItem img {
   width: 100%;
-  height: 100%;
-  
+  /* height: 100%; */
+  height: 2.14rem;
 }
 .roomItem .des {
   text-align: center;
@@ -184,6 +204,16 @@ export default {
   left: 50%;
   transform: translate(-50%, -50%);
   color: white;
-  background-color:rgba(0,0,0,0.3)
+  background-color: rgba(0, 0, 0, 0.3);
+}
+.loadMore{
+  position: absolute;
+  bottom: 0.1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.3rem;
+  background-color: #FA800a;
+  padding: 0.15rem 0.4rem;
+  color: #fff;
 }
 </style>

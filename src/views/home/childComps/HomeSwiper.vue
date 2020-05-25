@@ -5,13 +5,13 @@
   <!-- <div>123</div> -->
   <div id="mySwiper">
     <swiper class="mySwiper" ref="mySwiper" :options="swiperOptions">
-    <swiper-slide v-for="(item, index) in banners" :key="index">
-      <a :href="item.cover_img">
-        <img :src="baseUrl+item.cover_img" alt="">
-      </a>
-    </swiper-slide>
-    <div class="swiper-pagination" slot="pagination"></div>
-  </swiper>
+      <swiper-slide v-for="(item, index) in banners" :key="index">
+        <a :href="item.cover_img">
+          <img :src="baseUrl+item.cover_img" alt />
+        </a>
+      </swiper-slide>
+      <div class="swiper-pagination" slot="pagination"></div>
+    </swiper>
   </div>
 </template>
 
@@ -30,9 +30,13 @@ export default {
   },
   data() {
     return {
-      baseUrl:'http://m.wentuguoji.cn',
+      baseUrl: "http://m.wentuguoji.cn",
       swiperOptions: {
         autoplay:true,
+        autoplay: {
+          disableOnInteraction:false
+        },
+
         pagination: {
           el: ".swiper-pagination"
         }
@@ -55,18 +59,16 @@ export default {
   mounted() {
     // console.log("Current Swiper instance object", this.swiper);
     this.swiper.slideTo(3, 1000, false);
-  },
-
-  
+  }
 };
 </script>
 
 <style scoped>
-#mySwiper>>>.mySwiper{
+#mySwiper >>> .mySwiper {
   height: 4rem;
   width: 100%;
 }
-#mySwiper>>>.mySwiper img{
+#mySwiper >>> .mySwiper img {
   width: 100%;
   height: 100%;
 }
