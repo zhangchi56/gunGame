@@ -32,7 +32,7 @@
         <img v-show="!isShowGif" src="@/assets/img/detail/gun.png" alt />
         <img
           v-show="isShowGif"
-          src="http://a.hiphotos.baidu.com/exp/w=500/sign=f5dea38f0af41bd5da53e8f461db81a0/0b55b319ebc4b745cb69f3b2cbfc1e178b821590.jpg"
+          src="@/assets/img/detail/9.gif"
           alt
         />
       </div>
@@ -51,7 +51,6 @@
         </div>
       </div>
     </section>
-    <button @click="out">退出</button>
   </div>
 </template>
 
@@ -88,8 +87,6 @@ export default {
   updated() {},
   destroyed() {
     clearInterval(this.timer);
-    // 退出房间
-    this.loginOut();
     // 关闭连接
     this.ws.close();
     this.ws.onclose = function() {
@@ -101,9 +98,6 @@ export default {
     // wsMessage(val) {}
   },
   methods: {
-    out(){
-      this.loginOut()
-    },
     // 给服务端发送消息
     sendText() {
       let params = {
@@ -127,7 +121,8 @@ export default {
         // let url = "ws://192.168.11.105:3000//im";
         // let url = "ws://120.25.234.158:3000//im";
         // let url = "ws://192.168.11.105:3000/webSocket?125&1001";
-        let url = `ws://192.168.11.105:3000/webSocket?${JSON.parse(sessionStorage.getItem('userId'))}&${this.userQuery.room}`;
+        // let url = `ws://192.168.11.105:3000/webSocket?${JSON.parse(sessionStorage.getItem('userId'))}&${this.userQuery.room}`;
+        let url = `ws://120.25.234.158:3000/webSocket?${JSON.parse(sessionStorage.getItem('userId'))}&${this.userQuery.room}`;
         let ws = new WebSocket(url);
         _this.ws = ws;
         ws.onopen = function(e) {
@@ -146,12 +141,12 @@ export default {
           //接收服务器返回的数据
           console.log(e);
           _this.wsMessage = JSON.parse(e.data);
-          console.log(_this.wsMessage);
+          // console.log(_this.wsMessage);
 
           let roomPeopleNumList = _this.wsMessage.roomInfo.slice(0,_this.wsMessage.roomInfo.length-1).split(":")
           _this.splitArr(roomPeopleNumList);
-          console.log(_this.seat_top);
-          console.log(_this.seat_bottom);
+          // console.log(_this.seat_top);
+          // console.log(_this.seat_bottom);
 
           // _this.seat_top = [
           //   {name:'a'},
@@ -166,17 +161,6 @@ export default {
           _this.send();
         };
       }
-    },
-    //退出房间
-    loginOut() {
-      let params = {
-        cmd: "LOGOUT",
-        userId: sessionStorage.getItem("userId"),
-        content: JSON.parse(this.userQuery.name) + "退出房间",
-        time: 1590113988545,
-        room: this.userQuery.room
-      };
-      this.ws.send(JSON.stringify(params));
     },
     // //准备按钮
     // ready() {
@@ -228,7 +212,6 @@ export default {
     },
     // 返回上一级
     linkBack() {
-      this.loginOut()
       this.$router.go(-1);
     },
     // 消息通知开始

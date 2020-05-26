@@ -209,13 +209,15 @@ export default {
       } else {
         this.time = 3;
         this.disabled = true;
-        console.log(123);
+              
+
         this.$http
           .get(`/mobile/verify_code?phone=${this.formMess.phone}`)
           .then(res => {
             this.disabled = false;
             console.log(res);
             if (res.data.code == 200) {
+              console.log("真香")
               this.timer();
               this.$toast.success(res.data.message);
             } else if (res.data.code == 0) {
@@ -225,6 +227,7 @@ export default {
       }
     },
     timer() {
+      console.log(this.time)
       if (this.time > 0) {
         this.time--;
         this.btntxt = this.time + "s后重新获取";

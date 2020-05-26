@@ -80,9 +80,10 @@ export default {
   },
   mounted() {
     //下拉加载更多
-    window.addEventListener("scroll", () => {
-      this.showLoadMore();
-    });
+    // window.addEventListener("scroll", () => {
+    //   this.showLoadMore();
+    // });
+    window.addEventListener("scroll", this.showLoadMore);
     //监听滚动事件
     // window.addEventListener("srocll", this.handleScroll);
   },
