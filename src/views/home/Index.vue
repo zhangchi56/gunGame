@@ -11,7 +11,17 @@
       <div class="roomItem" v-for="(item, index) in room" :key="index">
         <!-- {{item.image_src}} -->
         <div @click="joinRoom(item)">
-          <img v-if="!item.image_src" src="~@/assets/img/home/枪.png" alt="">
+          <img v-if="!item.image_src" src="~@/assets/img/home/枪.png" alt />
+          <img v-else :src="item.image_src" alt />
+          <div class="des">{{index+1}}号房间5/6</div>
+        </div>
+      </div>
+    </div>
+    <div class="room">
+      <div class="roomItem" v-for="(item, index) in room" :key="index">
+        <!-- {{item.image_src}} -->
+        <div @click="joinRoom(item)">
+          <img v-if="!item.image_src" src="~@/assets/img/home/枪.png" alt />
           <img v-else :src="item.image_src" alt />
           <div class="des">{{index+1}}号房间5/6</div>
         </div>
@@ -23,7 +33,9 @@
     <!-- <img src="~assets/img/common/top.png" alt /> -->
     <!-- </back-top> -->
     <!-- 点击加载更多 -->
-    <div class="loadMore" @click="loadMore">加载更多</div>
+    <div class="loadMore" v-show="isLoadMoreing">
+      <van-loading color="#1989fa" size="32px">加载中...</van-loading>
+    </div>
   </div>
 </template>
 
@@ -43,13 +55,9 @@ export default {
   name: "Home",
   components: {
     NavBar,
-    // Scroll,
-    // TabControl,
-    // BackTop,
     HomeSwiper,
     FeatureView,
     RecommendView
-    // GoodsList
   },
   data() {
     return {
@@ -57,8 +65,8 @@ export default {
       room: [],
       recommends: [],
       page: 0,
-      init: 1
-      // showBackTop: false
+      init: 1,
+      isLoadMoreing: false
     };
   },
   created() {
@@ -71,8 +79,15 @@ export default {
     console.log("创建Home");
   },
   mounted() {
+    //下拉加载更多
+    window.addEventListener("scroll", () => {
+      this.showLoadMore();
+    });
     //监听滚动事件
     // window.addEventListener("srocll", this.handleScroll);
+  },
+  updated() {
+    // console.log(document.body.offsetHeight);
   },
   methods: {
     //获取首页banner图
@@ -83,20 +98,28 @@ export default {
     // },
     //获取房间
     getRoom() {
+      this.isLoadMoreing = true;
+      // this.$toast.loading({
+      //   message: "加载中...",
+      //   forbidClick: true,
+      //   loadingType: "spinner"
+      // });
       this.$http
         .get(
           `http://120.25.234.158:9001/websocket/getRoomList?page=${this.page}`
         )
         .then(res => {
-          console.log(res);
-          console.log(this.init);
+          // console.log(res);
+          // console.log(this.init);
           if (res.data.length <= 0) {
-            this.$toast.fail("暂无数据");
-          } else if(this.init > 1){
+            this.$toast.fail("已经到底了");
+          } else if (this.init > 1) {
             this.$toast.success("加载成功");
           }
           this.room = this.room.concat(res.data);
           this.init++;
+          this.isLoadMoreing = false;
+          // this.$toast.clear()
         });
     },
     //加入房间
@@ -130,38 +153,34 @@ export default {
       });
     },
     //加载更多
-    loadMore() {
-      this.page++;
-      this.getRoom();
+    loadMore() {},
+    //获得滚动条高度
+    getScrollTop() {
+      var scroll_top = 0;
+      if (document.documentElement && document.documentElement.scrollTop) {
+        scroll_top = document.documentElement.scrollTop;
+      } else if (document.body) {
+        scroll_top = document.body.scrollTop;
+      }
+      return scroll_top;
+    },
+    //显示加载更多
+    showLoadMore() {
+      if (
+        window.innerHeight + this.getScrollTop() ==
+        document.body.offsetHeight
+      ) {
+        this.page++;
+        this.getRoom();
+      }
     }
-
-    //监听是否滑动到页面底部
-    // handleScroll() {
-    //   if (document.documentElement.scrollTop == document.body.offsetHeight) {
-    //     console.log(123);
-    //   }
-    // },
-    //监听是否滑动到页面底部
-    // handleScroll() {
-    //   var scrollTop =
-    //     document.documentElement.scrollTop || document.body.scrollTop;
-    //   var windowHeitht =
-    //     document.documentElement.clientHeight || document.body.clientHeight;
-    //   var scrollHeight =
-    //     document.documentElement.scrollHeight || document.body.scrollHeight;
-    //   //是否滚动到底部的判断
-    //   if (scrollTop + windowHeitht >= scrollHeight - 50) {
-    //     // this.getSpecialData();
-    //     console.log('滑到底部')
-    //   }
-    // }
   }
 };
 </script>
 
 <style scoped>
 #home {
-  height: 100vh;
+  /* height: 100vh; */
 }
 
 .nav-bar {
@@ -227,7 +246,7 @@ export default {
   left: 50%;
   transform: translateX(-50%);
   font-size: 0.3rem;
-  background-color: #fa800a;
+  /* background-color: #fa800a; */
   padding: 0.15rem 0.4rem;
   color: #fff;
 }

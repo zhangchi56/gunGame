@@ -199,6 +199,7 @@ export default {
     },
     //获取手机验证码
     sendcode() {
+      console.log('发送验证码')
       // var reg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
       var reg = 11 && /^((13|14|15|17|18)[0-9]{1}\d{8})$/;
       if (this.formMess.phone == "") {
@@ -206,12 +207,13 @@ export default {
       } else if (!reg.test(this.formMess.phone)) {
         this.$toast.fail("手机号格式不正确");
       } else {
-        this.time = 60;
+        this.time = 3;
         this.disabled = true;
         console.log(123);
         this.$http
           .get(`/mobile/verify_code?phone=${this.formMess.phone}`)
           .then(res => {
+            this.disabled = false;
             console.log(res);
             if (res.data.code == 200) {
               this.timer();

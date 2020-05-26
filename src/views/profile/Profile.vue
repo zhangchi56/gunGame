@@ -128,8 +128,8 @@ export default {
 }
 .list .listItem {
   padding: 0.4rem;
-  height: 0.8rem;
-  line-height: 0.8rem;
+  height: 1rem;
+  line-height: 1rem;
   background-color: #fff;
   /* margin: 4px; */
   display: flex;

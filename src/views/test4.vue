@@ -28,7 +28,7 @@ export default {
       // params.append("password", "666666");
 
       this.$http
-        .get("http://120.25.234.158:9001/member/fetchMobileMember")
+        .get("/member/fetchMobileMember")
         .then(res => {
           console.log(res);
         });
@@ -42,6 +42,7 @@ export default {
     }
   }
 };
+
 </script>
 
 <style>

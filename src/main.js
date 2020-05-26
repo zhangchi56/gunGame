@@ -1,13 +1,11 @@
 import Vue from 'vue'
-import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
 import App from './App.vue'
 import router from './router'
 import store from './store'
 import VueLazyLoad from 'vue-lazyload'
 import axios from 'axios'
 
-// axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+axios.defaults.headers.post['Content-Type'] = 'application/json;charset:utf-8';
 // axios.defaults.baseURL = 'https://www.liulongbin.top:8888/api/private/v1/'
 axios.defaults.baseURL = 'http://120.25.234.158:9001'
 // axios.defaults.headers.post['Content-Type'] = 'multipart/form-data';
@@ -17,8 +15,8 @@ Vue.prototype.$http = axios
 axios.interceptors.request.use((config)=>{
   // 添加header头的token
   // let token = "nGqD26caeFKhkN/STirR4Q=="
-  // config.headers['mtoken'] = token
-  // config.headers['clienttype'] = 'mobile'
+  config.headers['mtoken'] = 'nGqD26caeFKhkN/STirR4Q=='
+  // config.headers['clientType'] = 'mobile'
   // let token = window.sessionStorage.getItem('token')
   // if(token){
     // config.headers['SESSION-TOKEN'] = token
@@ -39,16 +37,15 @@ axios.interceptors.request.use((config)=>{
 	return Promise.reject(error);
 });
 
-
-
 import 'vant/lib/index.css'; 
-import { Button,Toast,Dialog } from 'vant';
-Vue.use(Button,Toast,Dialog) //在需要的页面中就可以直接使用，页面当中也无需再次引入
+import { Button,Loading,Toast,Dialog} from 'vant';
+Vue.use(Button) //在需要的页面中就可以直接使用，页面当中也无需再次引入
+Vue.use(Loading);
+Vue.use(Toast);
+Vue.use(Dialog);
 
-// import { Button, Select } from 'element-ui';
-
-// Vue.use(Button)
-// Vue.use(Select)
+import 'element-ui/lib/theme-chalk/index.css';
+import ElementUI from 'element-ui';
 Vue.use(ElementUI);
 
 Vue.config.productionTip = false

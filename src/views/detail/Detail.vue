@@ -1,9 +1,13 @@
 <template>
   <div id="detail">
     <nav-bar class="nav-bar">
-      <div slot="left" @click="linkBack"><img style="width:0.5rem;heigth:0.5rem" src="~@/assets/img/profile/返回.png" alt /></div>
+      <div slot="left" @click="linkBack">
+        <img style="width:0.5rem;heigth:0.5rem" src="~@/assets/img/profile/返回.png" alt />
+      </div>
       <div slot="center">房间一（人数{{wsMessage.online}}/6）</div>
-      <div slot="right" @click="linkToProfile"><img style="width:0.5rem;heigth:0.5rem" src="~@/assets/img/profile/我的.png" alt /></div>
+      <div slot="right" @click="linkToProfile">
+        <img style="width:0.5rem;heigth:0.5rem" src="~@/assets/img/profile/我的.png" alt />
+      </div>
     </nav-bar>
 
     <section class="message-container">
@@ -21,7 +25,7 @@
             <!-- <img src="~assets/img/detail/1.png" alt /> -->
           </div>
           <div class="userInfo">{{item.name}}</div>
-          <div class="userInfo">{{item.name?'已准备':''}}</div>
+          <div class="userInfo">{{item.name?'等待准备':''}}</div>
         </div>
       </div>
       <div class="center">
@@ -47,6 +51,7 @@
         </div>
       </div>
     </section>
+    <button @click="out">退出</button>
   </div>
 </template>
 
@@ -73,9 +78,8 @@ export default {
   },
   created() {
     // 消息通知弹幕
-    console.log(this.userQuery);
+    // console.log(this.userQuery);
     this.timer = setInterval(this.move, 10);
-    // console.log(document.body.clientWidth);
   },
   mounted() {
     // 创建ws连接
@@ -84,6 +88,9 @@ export default {
   updated() {},
   destroyed() {
     clearInterval(this.timer);
+    // 退出房间
+    this.loginOut();
+    // 关闭连接
     this.ws.close();
     this.ws.onclose = function() {
       // 关闭 websocket
@@ -94,25 +101,33 @@ export default {
     // wsMessage(val) {}
   },
   methods: {
+    out(){
+      this.loginOut()
+    },
     // 给服务端发送消息
     sendText() {
-      let _this = this;
       let params = {
-        cmd: "LOGIN",
-        userId: sessionStorage.getItem('userId'),
-        content: JSON.parse(this.userQuery.name) + "加入游戏",
-        time: 1590113988545,
-        room: this.userQuery.room
+        // cmd: "LOGIN",
+        // // userId: JSON.parse(sessionStorage.getItem('userId')),
+        // nickName: JSON.parse(sessionStorage.getItem("userId")),
+        // content: JSON.parse(this.userQuery.name) + "加入游戏",
+        // time: 1590113988545,
+        // room: this.userQuery.room
       };
-      console.log(params)
-      _this.ws.send(JSON.stringify(params)); //调用WebSocket send()发送信息的方法
+      // console.log(params);
+      // alert('111')
+      this.ws.send(`${sessionStorage.getItem('userId')}加入游戏`); //调用WebSocket send()发送信息的方法
     },
     // 进入页面创建websocket连接
     initWebSocket() {
       let _this = this;
       // 判断页面有没有存在websocket连接
       if (window.WebSocket) {
-        let url = "ws://120.25.234.158:3000//im";
+        // let url = "ws://echo.websocket.org";
+        // let url = "ws://192.168.11.105:3000//im";
+        // let url = "ws://120.25.234.158:3000//im";
+        // let url = "ws://192.168.11.105:3000/webSocket?125&1001";
+        let url = `ws://192.168.11.105:3000/webSocket?${JSON.parse(sessionStorage.getItem('userId'))}&${this.userQuery.room}`;
         let ws = new WebSocket(url);
         _this.ws = ws;
         ws.onopen = function(e) {
@@ -132,25 +147,53 @@ export default {
           console.log(e);
           _this.wsMessage = JSON.parse(e.data);
           console.log(_this.wsMessage);
-          // console.log(_this.wsMessage.extra);
-          let arr = _this.wsMessage.extra.split(",");
-          _this.splitArr(arr);
+
+          let roomPeopleNumList = _this.wsMessage.roomInfo.slice(0,_this.wsMessage.roomInfo.length-1).split(":")
+          _this.splitArr(roomPeopleNumList);
           console.log(_this.seat_top);
           console.log(_this.seat_bottom);
+
+          // _this.seat_top = [
+          //   {name:'a'},
+          //   {name:'b'},
+          //   {name:'c'},
+          // ]
+          // _this.seat_bottom = [
+          //   {name:'d'},
+          //   {name:'e'},
+          //   {name:'f'},
+          // ]
           _this.send();
         };
       }
     },
-    //准备按钮
-    ready() {
+    //退出房间
+    loginOut() {
       let params = {
-        cmd: "LOGIN",
-        nickName: this.userQuery.name,
-        content: this.userQuery.name + "已经准备",
+        cmd: "LOGOUT",
+        userId: sessionStorage.getItem("userId"),
+        content: JSON.parse(this.userQuery.name) + "退出房间",
         time: 1590113988545,
         room: this.userQuery.room
       };
-      this.ws.send(JSON.stringify(params)); //调用WebSocket send()发送信息的方法
+      this.ws.send(JSON.stringify(params));
+    },
+    // //准备按钮
+    // ready() {
+    //   let params = {
+    //     // cmd: "CHAT",
+    //     // nickName: this.userQuery.name,
+    //     content: this.userQuery.name + "已经准备",
+    //     // time: 1590113988545,
+    //     // room: this.userQuery.room
+    //   };
+    //   this.ws.send(JSON.stringify(params)); //调用WebSocket send()发送信息的方法
+    //   this.isReady = true;
+    //   // this.send();
+    // },
+    //准备按钮
+    ready() {
+      this.ws.send(`${sessionStorage.getItem("userId")}已经准备`); //调用WebSocket send()发送信息的方法
       this.isReady = true;
       // this.send();
     },
@@ -164,6 +207,15 @@ export default {
         this.score = this.score - 10;
         this.$toast("抽奖成功，扣除10积分");
         this.isShowGif = true;
+        //开始抽奖
+      //   let params = {
+      //   cmd: "CHAT",
+      //   nickName: this.userQuery.name,
+      //   content: this.userQuery.name + "开始了游戏",
+      //   time: 1590113988545,
+      //   room: this.userQuery.room
+      // };
+      this.ws.send(`${sessionStorage.getItem("userId")}开始了游戏`); //调用WebSocket send()发送信息的方法
         setTimeout(() => {
           this.isShowGif = false;
           console.log(this);
@@ -176,6 +228,7 @@ export default {
     },
     // 返回上一级
     linkBack() {
+      this.loginOut()
       this.$router.go(-1);
     },
     // 消息通知开始
@@ -193,13 +246,13 @@ export default {
           f.removeChild(childs[i]);
         }
       }
-      // console.log(this.wsMessage.content);
+      console.log(this.wsMessage)
       var word = this.wsMessage.content;
       var span = document.createElement("span");
       span.style.position = "absolute";
       // let htmlFontSize = document.getElementsByTagName('html')[0].style.fontSize
       // let htmlFontSizeNum = htmlFontSize.substring(0,htmlFontSize.length-2)
-      span.style.left = document.body.clientWidth+ "px";
+      span.style.left = document.body.clientWidth + "px";
       // span.style["font-size"] = '12rem'
       span.speed = 1;
       span.innerHTML = word;
@@ -249,7 +302,7 @@ export default {
   width: 100%;
   height: 1rem;
   overflow: hidden;
-  background:#e72426;
+  background: #e72426;
   color: #fff;
 }
 .box span {
@@ -296,13 +349,12 @@ export default {
   height: 0.5rem;
   line-height: 0.5rem;
   background-color: #fff;
-  overflow: hidden;/*超出部分隐藏*/
-    text-overflow:ellipsis;/* 超出部分显示省略号 */
-    white-space: nowrap;/*规定段落中的文本不进行换行 */
+  overflow: hidden; /*超出部分隐藏*/
+  text-overflow: ellipsis; /* 超出部分显示省略号 */
+  white-space: nowrap; /*规定段落中的文本不进行换行 */
 }
 #detail-container .top div,
 #detail-container .bottom div {
-  /* background-color: pink; */
   width: 2.134rem;
   height: 2.134rem;
 }
@@ -316,7 +368,6 @@ export default {
   display: flex;
   width: 100%;
   height: 5.334rem;
-  /* background-color: red; */
 }
 #detail-container .center img {
   height: 100%;
