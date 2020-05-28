@@ -130,7 +130,7 @@ export default {
   methods: {
     //登陆
     submit() {
-      this.$refs.ruleForm.validate(e => {
+      this.$refs.ruleForm.validate(async e => {
         if (!e) return;
         // 提交表单
         this.loading = true;
@@ -138,29 +138,26 @@ export default {
         const loginParams = new URLSearchParams();
         loginParams.append("phone", this.form.username);
         loginParams.append("password", this.form.password);
-        this.$http
-          .post("/mobile/login", loginParams)
-          .then(res => {
-            console.log(res);
+        const res = await this.$http.post('/mobile/login',loginParams)
+        
+        // console.log(Integral.data.data.amount)
+        console.log(res);
             if (res.status == 200) {
               this.$toast.success("登陆成功");
               this.$router.push({ path: "/index" });
               this.loading = false;
               //储存user和token
               this.$store.commit("login", {
-                user: this.form.username,
+                userName: this.form.username,
                 token: res.data.data.mtoken,
-                userId:res.data.data.userid
+                userId: res.data.data.userid,
               });
-              console.log(res.data.data.mtoken)
-              console.log(res.data.data.userid)
             } else if (res.data.code == -1) {
               this.$toast.fail(res.data.message);
             }
-          })
-          .catch(err => {
-            this.loading = false;
-          });
+            const Integral = await this.$http.get(`/wallet/memberWallet?mtoken=${this.$store.state.user.token}`)
+            let IntegralNul = Integral.data.data.amount
+            this.$store.commit('saveIntegral',IntegralNul)
       });
     },
     //登陆注册页面切换
@@ -199,7 +196,7 @@ export default {
     },
     //获取手机验证码
     sendcode() {
-      console.log('发送验证码')
+      console.log("发送验证码");
       // var reg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/;
       var reg = 11 && /^((13|14|15|17|18)[0-9]{1}\d{8})$/;
       if (this.formMess.phone == "") {
@@ -209,25 +206,25 @@ export default {
       } else {
         this.time = 3;
         this.disabled = true;
-              
-
         this.$http
           .get(`/mobile/verify_code?phone=${this.formMess.phone}`)
           .then(res => {
             this.disabled = false;
             console.log(res);
-            if (res.data.code == 200) {
-              console.log("真香")
-              this.timer();
-              this.$toast.success(res.data.message);
-            } else if (res.data.code == 0) {
-              this.$toast.fail(res.data.message);
+            if (res.status == 200) {
+              if (res.data.code == 0) {
+                console.log("真香");
+                this.timer();
+                this.$toast.success(res.data.message);
+              } else if (res.data.code == -1) {
+                this.$toast.fail(res.data.message);
+              }
             }
           });
       }
     },
     timer() {
-      console.log(this.time)
+      console.log(this.time);
       if (this.time > 0) {
         this.time--;
         this.btntxt = this.time + "s后重新获取";

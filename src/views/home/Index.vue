@@ -11,17 +11,7 @@
       <div class="roomItem" v-for="(item, index) in room" :key="index">
         <!-- {{item.image_src}} -->
         <div @click="joinRoom(item)">
-          <img v-if="!item.image_src" src="~@/assets/img/home/枪.png" alt />
-          <img v-else :src="item.image_src" alt />
-          <div class="des">{{index+1}}号房间5/6</div>
-        </div>
-      </div>
-    </div>
-    <div class="room">
-      <div class="roomItem" v-for="(item, index) in room" :key="index">
-        <!-- {{item.image_src}} -->
-        <div @click="joinRoom(item)">
-          <img v-if="!item.image_src" src="~@/assets/img/home/枪.png" alt />
+          <img v-if="!item.image_src" src="~@/assets/img/home/游戏房间.png" alt />
           <img v-else :src="item.image_src" alt />
           <div class="des">{{index+1}}号房间5/6</div>
         </div>
@@ -74,9 +64,6 @@ export default {
     this.getMultiData();
     //获取房间数
     this.getRoom();
-    // 获取banner列表
-    // this.getBanner()
-    console.log("创建Home");
   },
   mounted() {
     //下拉加载更多
@@ -125,8 +112,8 @@ export default {
     },
     //加入房间
     joinRoom(item) {
-      console.log(window.sessionStorage.getItem("token"));
-      console.log(item);
+      // console.log(window.sessionStorage.getItem("token"));
+      // console.log(item);
       if (!window.sessionStorage.getItem("token")) {
         this.$toast.fail("请先登陆");
         this.$router.push({ path: "/login" });
@@ -224,22 +211,26 @@ export default {
   margin-bottom: 0.3rem;
   border: 1px black solid;
   /* height: 82px; */
+  text-align: center;
+  margin-bottom: 40px;
 }
 .roomItem img {
-  width: 100%;
+  /* text-align: center; */
+  /* width: 100%; */
   /* height: 100%; */
   height: 2.14rem;
 }
 .roomItem .des {
   text-align: center;
   width: 100%;
-  font-size: 0.5rem;
+  font-size: 0.4rem;
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  background-color: rgba(0, 0, 0, 0.3);
+  /* top: 50%; */
+  /* left: 50%; */
+  bottom: -29px;
+  /* transform: translate(-50%, -50%); */
+  color: #000;
+  /* background-color: rgba(0, 0, 0, 0.3); */
 }
 .loadMore {
   position: fixed;

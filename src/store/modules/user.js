@@ -1,8 +1,11 @@
 export default {
 	state: {
-	  user: {},
+	  user: {
+		  userId:'',
+		  userName:'',
+		  integral:''
+	  },
 	  token: false,
-	  userId:''
 	},
 	getters: {
 
@@ -11,26 +14,39 @@ export default {
 	  // 初始化用户信息
 	  initUser(state) {
 		let user = window.sessionStorage.getItem('user')
+		let token = window.sessionStorage.getItem('token')
 		if (user) {
-		  state.user = JSON.parse(user)
-		  state.token = state.user.token
-		  state.userId = state.user.userid
+		  state.user.userId = JSON.parse(user)
+		  state.user.userName = JSON.parse(user)
+		//   state.user.integral = JSON.parse(user)
+		}
+		if(token){
+			state.token = state.token
 		}
 	  },
 	  // 登录
 	  login(state, user) {
+		//   console.log(user)
 		// 保存登录状态
-		state.user = user.user
+		state.user.userId = user.userId
+		state.user.userName = user.userName
+		
 		state.token = user.token
-		state.userId = user.userId
 		// 存储到本地存储
-		// console.log(user.user)
-		// console.log(user.token)
-		// console.log(user.userId)
-		window.sessionStorage.setItem('user', JSON.stringify(state.user))
+		window.sessionStorage.setItem('userId', JSON.stringify(state.user.userId))
+		window.sessionStorage.setItem('userName', JSON.stringify(state.user.userName))
 		window.sessionStorage.setItem('token', JSON.stringify(state.token))
-		window.sessionStorage.setItem('userId', JSON.stringify(state.userId))
 	  },
+	  //获取用户积分
+	  saveIntegral(state,data){
+		state.user.integral = data
+		window.sessionStorage.setItem('integral', JSON.stringify(state.user.integral))
+	  },
+	  //改变用户积分
+	  changeUserIntegralNul(state,data){
+		  state.user.integral = data
+		  window.sessionStorage.setItem('integral', JSON.stringify(state.user.integral))
+	  }
 	  // 退出登录
 	//   logout(state) {
 	// 	// 清除状态

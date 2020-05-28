@@ -11,43 +11,39 @@
     </nav-bar>
 
     <section class="message-container">
-      <!-- <marquee behavior="slide" loop="2" direction="right" scrollamount="10">滚动内容</marquee> -->
       <div id="box" class="box"></div>
-      <!-- <input type="text" id="txt" /> -->
-      <!-- <button @click="send">提交内容</button> -->
     </section>
 
     <section id="detail-container">
       <div class="top">
         <div v-for="(item, index) in seat_top" :key="index">
           <div class="roomImg">
-            <img v-if="item.name" src="~assets/img/detail/1.png" alt />
-            <!-- <img src="~assets/img/detail/1.png" alt /> -->
+            <img v-if="item" src="~assets/img/detail/1.png" alt />
           </div>
-          <div class="userInfo">{{item.name}}</div>
-          <div class="userInfo">{{item.name?'等待准备':''}}</div>
+          <div class="userInfo">{{item?item.username:''}}</div>
+          <div class="userInfo">{{item?item.status:'' | getStatus}}</div>
         </div>
       </div>
       <div class="center">
         <img v-show="!isShowGif" src="@/assets/img/detail/gun.png" alt />
-        <img
-          v-show="isShowGif"
-          src="@/assets/img/detail/9.gif"
-          alt
-        />
+        <img v-show="isShowGif" src="@/assets/img/detail/9.gif" alt />
       </div>
       <div class="status">
-        <button @click="ready" class="ready" :disabled="isReady">{{isReady?"已准备":"准备"}}</button>
-        <button @click="start" class="start" v-show="isReady">开始</button>
+        <div>
+          <button @click="ready" class="ready" :disabled="isReady">{{isReady?"已准备":"准备"}}</button>
+        </div>
+        <div v-if="seat_top[0]?seat_top[0].houseHolder:''">
+          <button @click="start" class="start" v-show="isReady">开始</button>
+          <button @click="reset" class="reset" v-show="isReady&&isSet">重新开始</button>
+        </div>
       </div>
       <div class="bottom">
         <div v-for="(item, index) in seat_bottom" :key="index">
           <div class="roomImg">
-            <img v-if="item.name" src="~assets/img/detail/1.png" alt />
-            <!-- <img src="~assets/img/detail/1.png" alt /> -->
+            <img v-if="item" src="~assets/img/detail/1.png" alt />
           </div>
-          <div class="userInfo">{{item.name}}</div>
-          <div class="userInfo">{{item.name?'已准备':''}}</div>
+          <div class="userInfo">{{item?item.username:''}}</div>
+          <div class="userInfo">{{item?item.status:'' | getStatus}}</div>
         </div>
       </div>
     </section>
@@ -56,6 +52,7 @@
 
 <script>
 import NavBar from "common/navbar/NavBar";
+import { mapState } from "vuex";
 
 export default {
   name: "Detail",
@@ -64,9 +61,10 @@ export default {
   },
   data() {
     return {
+      locationUserInfo: {},
       isReady: false,
+      isSet: false,
       iid: "",
-      score: 10,
       timer: null,
       seat_top: [],
       seat_bottom: [],
@@ -76,9 +74,17 @@ export default {
     };
   },
   created() {
+    console.log(this.userInfo.userId);
     // 消息通知弹幕
     // console.log(this.userQuery);
     this.timer = setInterval(this.move, 10);
+
+    // 记录状态
+    this.locationUserInfo = {
+      userName: "",
+      userId: "",
+      integral: sessionStorage.getItem("integral")
+    };
   },
   mounted() {
     // 创建ws连接
@@ -94,35 +100,48 @@ export default {
       console.log("连接已关闭...");
     };
   },
-  watch: {
-    // wsMessage(val) {}
+  computed: {
+    ...mapState({
+      userInfo: state => state.user.user
+    })
+  },
+  filters: {
+    getStatus(val) {
+      let state;
+      switch (val) {
+        case 0:
+          state = "等待准备";
+          break;
+        case 1:
+          state = "已准备";
+          break;
+        case 2:
+          state = "开始游戏";
+          break;
+        case 3:
+          state = "重新开始游戏";
+          break;
+      }
+      return state;
+    }
   },
   methods: {
     // 给服务端发送消息
     sendText() {
-      let params = {
-        // cmd: "LOGIN",
-        // // userId: JSON.parse(sessionStorage.getItem('userId')),
-        // nickName: JSON.parse(sessionStorage.getItem("userId")),
-        // content: JSON.parse(this.userQuery.name) + "加入游戏",
-        // time: 1590113988545,
-        // room: this.userQuery.room
-      };
-      // console.log(params);
-      // alert('111')
-      this.ws.send(`${sessionStorage.getItem('userId')}加入游戏`); //调用WebSocket send()发送信息的方法
+      this.ws.send(`${sessionStorage.getItem("userId")},enter`); //调用WebSocket send()发送信息的方法
     },
     // 进入页面创建websocket连接
     initWebSocket() {
       let _this = this;
       // 判断页面有没有存在websocket连接
       if (window.WebSocket) {
+        // http://192.168.11.105:3000/webSocket
         // let url = "ws://echo.websocket.org";
-        // let url = "ws://192.168.11.105:3000//im";
-        // let url = "ws://120.25.234.158:3000//im";
-        // let url = "ws://192.168.11.105:3000/webSocket?125&1001";
         // let url = `ws://192.168.11.105:3000/webSocket?${JSON.parse(sessionStorage.getItem('userId'))}&${this.userQuery.room}`;
-        let url = `ws://120.25.234.158:3000/webSocket?${JSON.parse(sessionStorage.getItem('userId'))}&${this.userQuery.room}`;
+        // let url = `ws://120.25.234.158:3000/webSocket?${JSON.parse(sessionStorage.getItem('userId'))}&${this.userQuery.room}`;
+        let url = `ws://192.168.11.105:3000/webSocket?${JSON.parse(
+          sessionStorage.getItem("userId")
+        )}&${this.userQuery.room}`;
         let ws = new WebSocket(url);
         _this.ws = ws;
         ws.onopen = function(e) {
@@ -142,69 +161,71 @@ export default {
           console.log(e);
           _this.wsMessage = JSON.parse(e.data);
           // console.log(_this.wsMessage);
-
-          let roomPeopleNumList = _this.wsMessage.roomInfo.slice(0,_this.wsMessage.roomInfo.length-1).split(":")
-          _this.splitArr(roomPeopleNumList);
-          // console.log(_this.seat_top);
+          // let roomPeopleNumList = _this.wsMessage.roomInfo.slice(0,_this.wsMessage.roomInfo.length-1).split(":")
+          _this.splitArr(_this.wsMessage.list);
+          console.log(_this.seat_top);
           // console.log(_this.seat_bottom);
-
-          // _this.seat_top = [
-          //   {name:'a'},
-          //   {name:'b'},
-          //   {name:'c'},
-          // ]
-          // _this.seat_bottom = [
-          //   {name:'d'},
-          //   {name:'e'},
-          //   {name:'f'},
-          // ]
           _this.send();
         };
       }
     },
-    // //准备按钮
-    // ready() {
-    //   let params = {
-    //     // cmd: "CHAT",
-    //     // nickName: this.userQuery.name,
-    //     content: this.userQuery.name + "已经准备",
-    //     // time: 1590113988545,
-    //     // room: this.userQuery.room
-    //   };
-    //   this.ws.send(JSON.stringify(params)); //调用WebSocket send()发送信息的方法
-    //   this.isReady = true;
-    //   // this.send();
-    // },
     //准备按钮
     ready() {
-      this.ws.send(`${sessionStorage.getItem("userId")}已经准备`); //调用WebSocket send()发送信息的方法
-      this.isReady = true;
-      // this.send();
-    },
-    //开始按钮
-    start() {
-      if (this.score < 10) {
+      console.log(sessionStorage.getItem('integral'))
+      this.ws.send(`${sessionStorage.getItem("userId")},ready`); //调用WebSocket send()发送信息的方法
+      if (sessionStorage.getItem('integral') < 1) {
         this.$toast("积分不够，请立即充值！");
         this.$router.push({ path: "/deposit" });
-      } else {
-        //开始抽奖
-        this.score = this.score - 10;
-        this.$toast("抽奖成功，扣除10积分");
-        this.isShowGif = true;
-        //开始抽奖
-      //   let params = {
-      //   cmd: "CHAT",
-      //   nickName: this.userQuery.name,
-      //   content: this.userQuery.name + "开始了游戏",
-      //   time: 1590113988545,
-      //   room: this.userQuery.room
-      // };
-      this.ws.send(`${sessionStorage.getItem("userId")}开始了游戏`); //调用WebSocket send()发送信息的方法
-        setTimeout(() => {
-          this.isShowGif = false;
-          console.log(this);
-        }, 3000);
+        return;
       }
+      this.isReady = true;
+    },
+    //重新开始
+    reset() {
+      this.ws.send(`${sessionStorage.getItem("userId")},reset`); //调用WebSocket send()发送信息的方法
+      this.start()
+    },
+    //开始按钮
+    async start() {
+      //开始抽奖
+      let params = {
+        mtoken: JSON.parse(sessionStorage.getItem("token")),
+        roomNo: this.userQuery.room,
+        gameType: 1,
+        gameRound: 1,
+        amount: 1
+      };
+      const addRecord = await this.$http.get(
+        `/gameHistory/saveGameHistoryByUserid`,
+        { params }
+      );
+      console.log(addRecord)
+      let recordData = {
+        mtoken: JSON.parse(sessionStorage.getItem("token")),
+        userid: JSON.parse(sessionStorage.getItem("userId")),
+        page: 0
+      };
+      const record = await this.$http.get(
+        `/gameHistory/getGameHistoryByUserid`,
+        { params: recordData }
+      );
+      console.log(record)
+      // 重新获取用户积分
+      const Integral = await this.$http.get(
+        `/wallet/memberWallet?mtoken=${JSON.parse(sessionStorage.getItem('token'))}`
+        );
+      let IntegralNul = Integral.data.data.amount;
+        console.log(IntegralNul)
+      this.$store.commit('changeUserIntegralNul',IntegralNul)
+      this.$toast("抽奖成功，扣除1积分");
+      this.isShowGif = true;
+      this.ws.send(`${sessionStorage.getItem("userId")},begin`); //调用WebSocket send()发送信息的方法
+      setTimeout(() => {
+        this.isShowGif = false;
+      }, 3000);
+      setTimeout(() => {
+        this.isSet = true;
+      }, 3000);
     },
     // 跳转到个人中心
     linkToProfile() {
@@ -229,7 +250,7 @@ export default {
           f.removeChild(childs[i]);
         }
       }
-      console.log(this.wsMessage)
+      // console.log(this.wsMessage);
       var word = this.wsMessage.content;
       var span = document.createElement("span");
       span.style.position = "absolute";
@@ -254,23 +275,15 @@ export default {
     },
     // 分割数组
     splitArr(arr) {
-      console.log(arr);
+      arr[0].houseHolder = 1;
       let top = [];
       let bottom = [];
-
       for (let i = 0; i < 3; i++) {
-        let obj = {
-          name: arr[i]
-        };
-        top.push(obj);
+        top.push(arr[i]);
       }
       this.seat_top = top;
-
       for (let i = 3; i < 6; i++) {
-        let obj = {
-          name: arr[i]
-        };
-        bottom.push(obj);
+        bottom.push(arr[i]);
       }
       this.seat_bottom = bottom;
     }
@@ -300,13 +313,11 @@ export default {
   z-index: 1;
   background-color: #fff;
 }
-
 .nav-bar {
   background-color: var(--color-tint);
   font-weight: 700;
   color: #fff;
 }
-
 #detail-container {
   display: flex;
   margin: 0.267rem;
@@ -357,6 +368,7 @@ export default {
   width: 100%;
 }
 #detail-container .status {
+  display: flex;
   margin: 0.267rem 0;
 }
 #detail-container .status button {
@@ -367,6 +379,12 @@ export default {
   color: #fff;
 }
 #detail-container .status .ready {
-  margin-right: 0.5rem;
+  /* margin-left: 0.5rem; */
+}
+#detail-container .status .start {
+  margin-left: 0.5rem;
+}
+#detail-container .status .reset {
+  margin-left: 0.5rem;
 }
 </style>
