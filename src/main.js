@@ -5,18 +5,18 @@ import store from './store'
 import VueLazyLoad from 'vue-lazyload'
 import axios from 'axios'
 
-axios.defaults.headers.post['Content-Type'] = 'application/json;charset:utf-8';
+// axios.defaults.headers.post['Content-Type'] = 'application/json;charset:utf-8';
 // axios.defaults.baseURL = 'https://www.liulongbin.top:8888/api/private/v1/'
-axios.defaults.baseURL = 'http://120.25.234.158:9001'
-// axios.defaults.headers.post['Content-Type'] = 'multipart/form-data';
+axios.defaults.baseURL = ''
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 Vue.prototype.$http = axios
 
 // 添加请求拦截器
 axios.interceptors.request.use((config)=>{
   // 添加header头的token
   // let token = "nGqD26caeFKhkN/STirR4Q=="
-  config.headers['mtoken'] = 'nGqD26caeFKhkN/STirR4Q=='
-  // config.headers['clientType'] = 'mobile'
+  // config.headers['mtoken'] = 'nGqD26caeFKhkN/STirR4Q=='
+  // config.headers['clienttype'] = 'mobile'
   // let token = window.sessionStorage.getItem('token')
   // if(token){
     // config.headers['SESSION-TOKEN'] = token

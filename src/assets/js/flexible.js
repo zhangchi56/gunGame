@@ -1,20 +1,19 @@
-(function flexible (window, document) {
+(function flexible(window, document) {
   var docEl = document.documentElement
   var dpr = window.devicePixelRatio || 1
 
   // adjust body font size
-  function setBodyFontSize () {
+  function setBodyFontSize() {
     if (document.body) {
       document.body.style.fontSize = (12 * dpr) + 'px'
-    }
-    else {
+    } else {
       document.addEventListener('DOMContentLoaded', setBodyFontSize)
     }
   }
   setBodyFontSize();
 
   // set 1rem = viewWidth / 10
-  function setRemUnit () {
+  function setRemUnit() {
     var rem = docEl.clientWidth / 10
     docEl.style.fontSize = rem + 'px'
   }
@@ -41,4 +40,15 @@
     }
     docEl.removeChild(fakeBody)
   }
+  //限制屏幕最大字体为50px
+  function limitMaxFontSize(params) {
+    if (docEl.clientWidth > 750) {
+      docEl.style.fontSize = 60 + 'px'
+    }
+  }
+  window.onresize = function () {
+    limitMaxFontSize()
+  }
+  limitMaxFontSize()
+
 }(window, document))

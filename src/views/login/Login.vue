@@ -3,7 +3,7 @@
     <img style="width:100%" src="@/assets/img/login.png" alt />
     <div class="container">
       <div class="row">
-        <div class="col-12 col-sm-9 col-md-7 col-lg-5 m-auto">
+        <div class="col-12">
           <div class="card mt-2">
             <div class="card-header bg-white">
               <h3 class="login-header text-center mb-0 text-secondary">
@@ -93,6 +93,7 @@
 </template>
 
 <script>
+import qs from "qs";
 import { mapGetters } from "vuex";
 import { getHomeMultidata, getHomeData, RECOMMEND, BANNER } from "network/home";
 export default {
@@ -135,29 +136,39 @@ export default {
         // 提交表单
         this.loading = true;
         //将json格式转换
-        const loginParams = new URLSearchParams();
-        loginParams.append("phone", this.form.username);
-        loginParams.append("password", this.form.password);
-        const res = await this.$http.post('/mobile/login',loginParams)
-        
+        // const loginParams = new URLSearchParams();
+        // loginParams.append("phone", this.form.username);
+        // loginParams.append("password", this.form.password);
+        let loginParams = {
+          phone: this.form.username,
+          password: this.form.password
+        };
+        console.log(loginParams)
+        const res = await this.$http.post(
+          "http://120.25.234.158:9001/mobile/login",
+          qs.stringify(loginParams)
+        );
+
         // console.log(Integral.data.data.amount)
         console.log(res);
-            if (res.status == 200) {
-              this.$toast.success("登陆成功");
-              this.$router.push({ path: "/index" });
-              this.loading = false;
-              //储存user和token
-              this.$store.commit("login", {
-                userName: this.form.username,
-                token: res.data.data.mtoken,
-                userId: res.data.data.userid,
-              });
-            } else if (res.data.code == -1) {
-              this.$toast.fail(res.data.message);
-            }
-            const Integral = await this.$http.get(`/wallet/memberWallet?mtoken=${this.$store.state.user.token}`)
-            let IntegralNul = Integral.data.data.amount
-            this.$store.commit('saveIntegral',IntegralNul)
+        if (res.status == 200) {
+          this.$toast.success("登陆成功");
+          this.$router.push({ path: "/index" });
+          this.loading = false;
+          //储存user和token
+          this.$store.commit("login", {
+            userName: this.form.username,
+            token: res.data.data.mtoken,
+            userId: res.data.data.userid
+          });
+        } else if (res.data.code == -1) {
+          this.$toast.fail(res.data.message);
+        }
+        const Integral = await this.$http.get(
+          `/wallet/memberWallet?mtoken=${this.$store.state.user.token}`
+        );
+        let IntegralNul = Integral.data.data.amount;
+        this.$store.commit("saveIntegral", IntegralNul);
       });
     },
     //登陆注册页面切换

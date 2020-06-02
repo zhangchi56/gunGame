@@ -195,6 +195,7 @@ export default {
         gameRound: 1,
         amount: 1
       };
+      //保存游戏记录
       const addRecord = await this.$http.get(
         `/gameHistory/saveGameHistoryByUserid`,
         { params }

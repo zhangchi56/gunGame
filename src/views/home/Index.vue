@@ -179,27 +179,27 @@ export default {
 
 .content {
   position: absolute;
-  top: 44px;
-  bottom: 49px;
+  top: 1.173rem;
+  bottom: 1.307rem;
   left: 0;
   right: 0;
 }
 
 .fixed {
   position: fixed;
-  top: 44px;
+  top: 1.173rem;
   left: 0;
   right: 0;
 }
 
-.back-top {
+/* .back-top {
   position: fixed;
   right: 10px;
   bottom: 60px;
-}
+} */
 
 .room {
-  padding: 10px;
+  padding: 0.267rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -212,7 +212,7 @@ export default {
   border: 1px black solid;
   /* height: 82px; */
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 1.067rem;
 }
 .roomItem img {
   /* text-align: center; */
@@ -227,7 +227,7 @@ export default {
   position: absolute;
   /* top: 50%; */
   /* left: 50%; */
-  bottom: -29px;
+  bottom: -0.773rem;
   /* transform: translate(-50%, -50%); */
   color: #000;
   /* background-color: rgba(0, 0, 0, 0.3); */

@@ -27,18 +27,20 @@ export default {
       // params.append("phone", "15573940178");
       // params.append("password", "666666");
 
-      this.$http
-        .get("/member/fetchMobileMember")
-        .then(res => {
-          console.log(res);
-        });
-
-      // this.$http.post('http://120.25.234.158:9001/mobile/login',{
-      //     "phone":"15573940178",
-      //     "password":"666666"
-      // },{headers:{ 'content-type': 'multipart/form-data' }}).then(res => {
+      // this.$http.post('http://120.25.234.158:9001/mobile/login',params).then(res => {
       //     console.log(res)
       // })
+
+      const params = new URLSearchParams();
+      params.append("email", "admin@ligeit.com");
+      params.append("password", "123456");
+      
+
+      this.$http.post('/admin/userMutation/adminLogin',params).then(res => {
+          console.log(res)
+      })
+
+
     }
   }
 };
